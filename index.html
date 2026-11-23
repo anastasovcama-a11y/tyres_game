@@ -38,7 +38,6 @@
   }
   @keyframes grid { from{background-position:0 0} to{background-position:0 40px} }
 
-  /* === УВЕЛИЧЕННОЕ АДАПТИВНОЕ ОКНО === */
   .screen {
     width:min(96vw, 720px);
     height:min(94vh, 900px);
@@ -135,7 +134,6 @@
     background-repeat:no-repeat;
     transition: background-image .3s ease;
   }
-  /* Затемнение фона, чтобы текст читался */
   #dialogScreen::before {
     content:'';
     position:absolute; inset:0;
@@ -155,19 +153,21 @@
     min-height: 150px;
   }
   
+  /* === КРУГЛЫЕ БОЛЬШИЕ АВАТАРКИ === */
   .portrait {
-    width:96px; height:96px; border-radius:12px; flex-shrink:0;
+    width:110px; height:110px; border-radius:50%; flex-shrink:0;
     border:3px solid #00ffea;
     background:linear-gradient(135deg,#ff2e88,#4a0e5c);
     display:flex; align-items:center; justify-content:center;
-    font-size:42px;
+    font-size:48px;
     overflow: hidden;
-    box-shadow: 0 0 18px rgba(0,255,234,0.4);
+    box-shadow: 0 0 22px rgba(0,255,234,0.6);
+    align-self:center;
   }
-  .portrait img { width: 100%; height: 100%; object-fit: cover; }
+  .portrait img { width: 100%; height: 100%; object-fit: cover; display:block; }
 
   .tire-showcase {
-    width: 100%; height: 160px;
+    width: 100%; height: 180px;
     background: rgba(0,0,0,0.5);
     border: 1px solid #00ffea;
     border-radius: 8px; margin-bottom: 10px;
@@ -205,7 +205,7 @@
   .next-btn.show { display:block; }
   .next-btn:active { transform:scale(.97); }
 
-  /* === ИГРА: БОЛТЫ === */
+  /* === ИГРА: БОЛТЫ (С ШИНОЙ) === */
   .game-head { display:flex; justify-content:space-between; color:#fff; font-size:13px; margin-bottom:10px; flex-shrink:0; }
   .game-head b { color:#00ffea; }
 
@@ -214,31 +214,36 @@
     display:flex; align-items:center; justify-content:center;
     min-height:0;
   }
+  
+  /* Колесо с шиной tire.png */
   .wheel {
-    width:min(260px, 60vmin); height:min(260px, 60vmin); border-radius:50%;
-    background: radial-gradient(circle at 50% 50%, #222 28%, #111 60%, #000 100%);
-    border:14px solid #1c1c1c;
+    width:min(320px, 65vmin); height:min(320px, 65vmin); border-radius:50%;
+    background-color: #111;
+    border:8px solid #1c1c1c;
     box-shadow:0 0 30px rgba(0,255,234,0.5), inset 0 0 30px rgba(0,0,0,0.9);
     position:relative; transition: transform .15s;
+    overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .wheel img.wheel-img {
+    width: 100%; height: 100%; object-fit: cover; 
+    border-radius: 50%;
+    position: absolute; inset: 0;
+    z-index: 1;
   }
   .wheel.hit { transform:scale(1.04); box-shadow:0 0 55px #ff2e88, inset 0 0 30px rgba(255,46,136,.5); }
   .wheel.miss { animation:shake .3s; }
   @keyframes shake { 25%{transform:translateX(6px)} 50%{transform:translateX(-6px)} 75%{transform:translateX(4px)} }
 
-  .hub {
-    position:absolute; inset:30%; border-radius:50%;
-    background: conic-gradient(#00ffea 0 25%, #ff2e88 0 50%, #ffb347 0 75%, #00ffea 0);
-    opacity:.6;
-  }
   .bolt {
-    position:absolute; width:36px; height:36px; border-radius:50%;
+    position:absolute; width:40px; height:40px; border-radius:50%;
     background: radial-gradient(circle at 35% 35%, #888, #333);
     border:2px solid #555; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
     font-size:14px; color:#0a0014; font-weight:900;
     box-shadow:0 0 10px rgba(0,255,234,0.4);
     transition: transform .1s, box-shadow .2s, background .2s; z-index:3;
-    margin:-18px 0 0 -18px;
+    margin:-20px 0 0 -20px;
   }
   .bolt::before { content:''; position:absolute; inset:6px; border-radius:50%; border:2px solid #222; }
   .bolt.active { animation: boltPulse 0.6s infinite; background: radial-gradient(circle at 35% 35%, #00ffea, #008888); box-shadow:0 0 25px #00ffea; }
@@ -257,15 +262,18 @@
 
   /* === ГЕРОЙ НА СТАРТЕ === */
   .intro-hero {
-    width:170px; height:170px; border-radius:50%; overflow:hidden;
+    width:180px; height:180px; border-radius:50%; overflow:hidden;
     border:4px solid #00ffea;
     box-shadow:0 0 35px rgba(0,255,234,0.6), 0 0 15px rgba(255,46,136,0.4);
     margin-bottom:18px; flex-shrink:0;
     background:linear-gradient(135deg,#ff2e88,#4a0e5c);
     display:flex; align-items:center; justify-content:center;
+    position:relative;
   }
   .intro-hero img { width:100%; height:100%; object-fit:cover; display:block; }
-  .intro-hero .fallback { font-size:80px; }
+  .intro-hero .fallback { font-size:80px; display:none; }
+  .intro-hero.error img { display:none; }
+  .intro-hero.error .fallback { display:block; }
 
   /* === АДАПТИВ ПОД ТЕЛЕФОН === */
   @media (max-width: 520px) {
@@ -281,7 +289,7 @@
     .logo { font-size:22px; }
     .subtitle { font-size:9px; margin-bottom:10px; }
 
-    .portrait { width:72px; height:72px; font-size:34px; border-width:2px; }
+    .portrait { width:80px; height:80px; font-size:36px; border-width:2px; }
     .dialog-box { padding:12px; gap:10px; }
     .text { font-size:13px; }
     .option-btn { font-size:12px; padding:8px 10px; }
@@ -292,10 +300,10 @@
     .pin-label { font-size:11px; }
 
     .tire-showcase { height:130px; }
-    .intro-hero { width:130px; height:130px; }
+    .intro-hero { width:140px; height:140px; }
     .intro-hero .fallback { font-size:60px; }
 
-    .bolt { width:32px; height:32px; margin:-16px 0 0 -16px; }
+    .bolt { width:34px; height:34px; margin:-17px 0 0 -17px; }
     .bolt::before { inset:5px; }
   }
 
@@ -303,10 +311,10 @@
     .screen { padding:12px; }
     .logo { font-size:20px; }
     .subtitle { margin-bottom:8px; }
-    .intro-hero { width:110px; height:110px; margin-bottom:10px; }
+    .intro-hero { width:120px; height:120px; margin-bottom:10px; }
     .intro-hero .fallback { font-size:50px; }
     .tire-showcase { height:110px; }
-    .portrait { width:64px; height:64px; font-size:30px; }
+    .portrait { width:70px; height:70px; font-size:30px; }
     .text { font-size:12px; line-height:1.35; }
   }
 </style>
@@ -321,10 +329,10 @@
   <!-- ЭКРАН 0: ПРЕДИСТОРИЯ -->
   <div id="introScreen" class="active">
     <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; color:#fff; overflow:auto;">
-      <!-- ГЕРОЙ: mainhero.jpg, с надёжным fallback -->
+      <!-- ГЕРОЙ: mainhero.jpg -->
       <div class="intro-hero" id="introHeroBox">
-        <img src="mainhero.jpg" alt="Главный герой"
-             onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=&quot;fallback&quot;>🚗</span>';">
+        <img src="mainhero.jpg" alt="Главный герой" id="introHeroImg">
+        <span class="fallback">🚗</span>
       </div>
 
       <h2 style="color: #00ffea; margin-bottom: 10px; letter-spacing: 2px;">VICE CITY</h2>
@@ -402,8 +410,9 @@
       <div class="dialog-content">
         <div class="speaker" id="speaker">СИСТЕМА</div>
         
+        <!-- Блок шины -->
         <div class="tire-showcase" id="tireShowcase">
-          <img src="tire.png" alt="Шина Gislaved" id="tireImg">
+          <img src="tire.png" alt="Шина Gislaved">
         </div>
 
         <div class="text" id="dialogText"></div>
@@ -422,7 +431,7 @@
     <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
     <div class="wheel-stage">
       <div class="wheel" id="wheel">
-        <div class="hub"></div>
+        <img src="tire.png" alt="Шина" class="wheel-img" onerror="this.style.display='none'; this.parentElement.classList.add('no-img');">
       </div>
     </div>
     <div class="feedback" id="gameFeedback"></div>
@@ -435,15 +444,14 @@
    ======================================================= */
 const IMAGES = {
   intro: 'mainhero.jpg',
-  police: 'police.jpg',      // портрет персонажа полиции
-  shop: 'store.jpg',         // портрет персонажа магазина
-  park: 'park.jpg',          // портрет персонажа парка
-  gas: 'azc.jpg',            // портрет персонажа заправки
-  mechanic: 'service.jpg',   // портрет шиномонтажника
-  driver: 'mainhero.jpg'     // портрет водителя (главный герой)
+  police: 'police.jpg',
+  shop: 'store.jpg',
+  park: 'park.jpg',
+  gas: 'azc.jpg',
+  mechanic: 'service.jpg',
+  driver: 'mainhero.jpg'
 };
 
-/* Фоны локаций (экран вопроса / финальный диалог) */
 const BACKGROUNDS = {
   police:  'inpolice.jpg',
   shop:    'fonstore.jpg',
@@ -451,6 +459,27 @@ const BACKGROUNDS = {
   gas:     'gas.jpg',
   tire:    'fonservice.jpg'
 };
+
+/* 1. Герой */
+const heroImg = document.getElementById('introHeroImg');
+const heroBox = document.getElementById('introHeroBox');
+if (heroImg) {
+  heroImg.onload = () => { heroBox.classList.remove('error'); };
+  heroImg.onerror = () => { heroBox.classList.add('error'); };
+  // Проверка на случай, если картинка уже в кэше
+  if (heroImg.complete && heroImg.naturalWidth === 0) {
+    heroBox.classList.add('error');
+  }
+}
+
+/* 2. Предзагрузка фонов (без битых иконок) */
+const bgCache = {};
+Object.entries(BACKGROUNDS).forEach(([key, url]) => {
+  const img = new Image();
+  img.onload = () => { bgCache[key] = url; };
+  img.onerror = () => { console.warn('Фон не найден:', url); };
+  img.src = url;
+});
 /* ======================================================= */
 
 const questionsDB = {
@@ -565,11 +594,10 @@ function show(name) {
   screens[name].classList.add('active');
 }
 
-/* Установка фона для экрана диалога */
 function setDialogBackground(loc) {
   const bg = BACKGROUNDS[loc];
   const ds = document.getElementById('dialogScreen');
-  if (bg) {
+  if (bg && bgCache[loc]) {
     ds.style.backgroundImage = `url('${bg}')`;
   } else {
     ds.style.backgroundImage = 'none';
@@ -749,7 +777,6 @@ function renderDialog() {
   speakerEl.textContent = line.speaker;
   updatePortrait(line.portrait);
 
-  /* Показ шины tire.png в финальном диалоге (только при победе) */
   if (currentScore >= 4 && dialogIndex === 0) {
     tireShowcase.classList.add('show');
   } else {
@@ -970,10 +997,10 @@ function resetAll() {
   show('map');
 }
 
-/* Инициализация */
 updateMapUI();
 </script>
 </body>
 </html>
   
+
 
