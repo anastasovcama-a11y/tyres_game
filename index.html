@@ -2,18 +2,23 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>VICE TIRES — Квест</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700;900&display=swap');
 
-  * { margin:0; padding:0; box-sizing:border-box; user-select:none; }
+  * { margin:0; padding:0; box-sizing:border-box; user-select:none; -webkit-tap-highlight-color:transparent; }
+
+  html, body { height:100%; }
 
   body {
     font-family: 'Montserrat', sans-serif;
     background:#0a0014;
-    height:100vh; overflow:hidden;
+    min-height:100vh;
+    min-height:100dvh;
+    overflow:hidden;
     display:flex; align-items:center; justify-content:center;
+    padding:10px;
   }
 
   .bg {
@@ -33,8 +38,11 @@
   }
   @keyframes grid { from{background-position:0 0} to{background-position:0 40px} }
 
+  /* === УВЕЛИЧЕННОЕ АДАПТИВНОЕ ОКНО === */
   .screen {
-    width:min(94vw,540px);
+    width:min(96vw, 720px);
+    height:min(94vh, 900px);
+    height:min(94dvh, 900px);
     background: rgba(10,0,20,0.88);
     border:2px solid #00ffea;
     border-radius:20px;
@@ -42,22 +50,23 @@
     box-shadow: 0 0 40px rgba(255,46,136,0.6), inset 0 0 30px rgba(0,255,234,0.08);
     backdrop-filter: blur(6px);
     position:relative;
-    min-height: 560px;
     display:flex; flex-direction:column;
+    overflow:hidden;
   }
 
   .logo {
-    text-align:center; font-weight:900; font-size:24px; letter-spacing:2px;
+    text-align:center; font-weight:900; font-size:26px; letter-spacing:2px;
     background: linear-gradient(90deg,#ff2e88,#ffb347,#00ffea);
     -webkit-background-clip:text; background-clip:text; color:transparent;
     text-shadow:0 0 20px rgba(255,46,136,0.4);
+    flex-shrink:0;
   }
   .subtitle {
-    text-align:center; color:#00ffea; font-size:9px; letter-spacing:4px;
-    margin-bottom:12px; opacity:.8;
+    text-align:center; color:#00ffea; font-size:10px; letter-spacing:4px;
+    margin-bottom:14px; opacity:.8; flex-shrink:0;
   }
 
-  .screen > div[id$="Screen"] { flex:1; display:none; flex-direction:column; }
+  .screen > div[id$="Screen"] { flex:1; display:none; flex-direction:column; min-height:0; overflow:hidden; }
   .screen > div.active { display:flex; }
 
   /* === КАРТА === */
@@ -69,6 +78,7 @@
       radial-gradient(circle at 30% 40%, rgba(0,255,234,0.1), transparent 60%),
       linear-gradient(135deg,#0d1b2a,#1b263b);
     border:1px solid rgba(0,255,234,0.3);
+    min-height:0;
   }
   .block { position:absolute; background:rgba(0,255,234,0.06); border:1px solid rgba(0,255,234,0.15); border-radius:3px; }
   .road { position:absolute; background:rgba(255,46,136,0.12); }
@@ -76,7 +86,6 @@
     background:linear-gradient(135deg,#001f3f,#003366);
     clip-path: polygon(30% 0, 100% 0, 100% 100%, 0 100%); opacity:.5;}
 
-  /* === УВЕЛИЧЕННЫЕ ИКОНКИ === */
   .pin {
     position:absolute; transform:translate(-50%,-100%);
     width:52px; height:52px; cursor:pointer; z-index:5;
@@ -107,26 +116,45 @@
 
   .map-hint {
     text-align:center; color:#ffb347; font-size:12px; margin-top:10px; letter-spacing:1px;
+    flex-shrink:0;
   }
 
   .map-score {
-    text-align:center; color:#fff; font-size:14px; margin-bottom:10px;
+    text-align:center; color:#fff; font-size:14px; margin-bottom:10px; flex-shrink:0;
   }
   .map-score b { color:#00ffea; font-size:16px; }
 
-  /* === ДИАЛОГ / ВОПРОСЫ === */
-  #dialogScreen { justify-content:flex-end; }
+  /* === ДИАЛОГ / ВОПРОС === */
+  #dialogScreen {
+    justify-content:flex-end;
+    position:relative;
+    border-radius:12px;
+    overflow:hidden;
+    background-size:cover;
+    background-position:center;
+    background-repeat:no-repeat;
+    transition: background-image .3s ease;
+  }
+  /* Затемнение фона, чтобы текст читался */
+  #dialogScreen::before {
+    content:'';
+    position:absolute; inset:0;
+    background: linear-gradient(180deg, rgba(10,0,20,0.55) 0%, rgba(10,0,20,0.85) 60%, rgba(10,0,20,0.95) 100%);
+    z-index:0;
+    pointer-events:none;
+  }
+  #dialogScreen > .dialog-box { position:relative; z-index:1; }
+
   .dialog-box {
-    background:rgba(0,0,0,0.85);
+    background:rgba(0,0,0,0.88);
     border:2px solid #ff2e88;
     border-radius:14px;
-    padding:14px;
+    padding:16px;
     box-shadow:0 0 25px rgba(255,46,136,0.4);
     display:flex; gap:14px;
     min-height: 150px;
   }
   
-  /* === УВЕЛИЧЕННЫЙ ПОРТРЕТ === */
   .portrait {
     width:96px; height:96px; border-radius:12px; flex-shrink:0;
     border:3px solid #00ffea;
@@ -139,54 +167,55 @@
   .portrait img { width: 100%; height: 100%; object-fit: cover; }
 
   .tire-showcase {
-    width: 100%; height: 150px;
+    width: 100%; height: 160px;
     background: rgba(0,0,0,0.5);
     border: 1px solid #00ffea;
     border-radius: 8px; margin-bottom: 10px;
     display: none; align-items: center; justify-content: center; overflow: hidden;
   }
   .tire-showcase.show { display: flex; }
-  .tire-showcase img { height: 100%; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0,255,234,0.5)); }
+  .tire-showcase img { height: 100%; width: 100%; object-fit: contain; filter: drop-shadow(0 0 15px rgba(0,255,234,0.5)); }
 
-  .dialog-content { flex:1; display:flex; flex-direction:column; }
+  .dialog-content { flex:1; display:flex; flex-direction:column; min-width:0; }
   .speaker { color:#00ffea; font-size:11px; font-weight:900; letter-spacing:1px; margin-bottom:4px; }
-  .text { color:#fff; font-size:14px; line-height:1.4; margin-bottom:10px; }
+  .text { color:#fff; font-size:14px; line-height:1.45; margin-bottom:10px; }
 
   .options { display:flex; flex-direction:column; gap:6px; margin-top:6px; }
   .option-btn {
-    background:rgba(0,255,234,0.1);
+    background:rgba(0,255,234,0.12);
     border:1px solid rgba(0,255,234,0.5);
     color:#fff; font-family:inherit; font-size:13px; text-align:left;
-    padding:8px 12px; border-radius:8px; cursor:pointer;
+    padding:9px 12px; border-radius:8px; cursor:pointer;
     transition: background .2s, transform .1s;
+    backdrop-filter: blur(4px);
   }
-  .option-btn:hover { background:rgba(0,255,234,0.25); }
+  .option-btn:hover { background:rgba(0,255,234,0.28); }
   .option-btn:active { transform:scale(0.98); }
-  .option-btn.correct { background:rgba(0,255,234,0.4); border-color:#00ffea; color: #fff; font-weight: bold; }
-  .option-btn.wrong { background:rgba(255,46,136,0.4); border-color:#ff2e88; color: #fff; }
-  .option-btn:disabled { cursor:default; opacity:0.7; }
+  .option-btn.correct { background:rgba(0,255,234,0.45); border-color:#00ffea; color: #fff; font-weight: bold; }
+  .option-btn.wrong { background:rgba(255,46,136,0.45); border-color:#ff2e88; color: #fff; }
+  .option-btn:disabled { cursor:default; opacity:0.75; }
 
   .next-btn {
     align-self:flex-end; margin-top:8px;
     background:linear-gradient(90deg,#00ffea,#ff2e88);
     color:#0a0014; font-family:inherit; font-weight:900;
-    border:none; padding:8px 18px; border-radius:8px; cursor:pointer;
+    border:none; padding:9px 20px; border-radius:8px; cursor:pointer;
     font-size:13px; letter-spacing:1px; display:none;
   }
   .next-btn.show { display:block; }
   .next-btn:active { transform:scale(.97); }
 
   /* === ИГРА: БОЛТЫ === */
-  .game-head { display:flex; justify-content:space-between; color:#fff; font-size:13px; margin-bottom:10px; }
+  .game-head { display:flex; justify-content:space-between; color:#fff; font-size:13px; margin-bottom:10px; flex-shrink:0; }
   .game-head b { color:#00ffea; }
 
   .wheel-stage {
     flex:1; position:relative;
     display:flex; align-items:center; justify-content:center;
-    min-height:280px;
+    min-height:0;
   }
   .wheel {
-    width:220px; height:220px; border-radius:50%;
+    width:min(260px, 60vmin); height:min(260px, 60vmin); border-radius:50%;
     background: radial-gradient(circle at 50% 50%, #222 28%, #111 60%, #000 100%);
     border:14px solid #1c1c1c;
     box-shadow:0 0 30px rgba(0,255,234,0.5), inset 0 0 30px rgba(0,0,0,0.9);
@@ -202,13 +231,14 @@
     opacity:.6;
   }
   .bolt {
-    position:absolute; width:34px; height:34px; border-radius:50%;
+    position:absolute; width:36px; height:36px; border-radius:50%;
     background: radial-gradient(circle at 35% 35%, #888, #333);
     border:2px solid #555; cursor:pointer;
     display:flex; align-items:center; justify-content:center;
     font-size:14px; color:#0a0014; font-weight:900;
     box-shadow:0 0 10px rgba(0,255,234,0.4);
     transition: transform .1s, box-shadow .2s, background .2s; z-index:3;
+    margin:-18px 0 0 -18px;
   }
   .bolt::before { content:''; position:absolute; inset:6px; border-radius:50%; border:2px solid #222; }
   .bolt.active { animation: boltPulse 0.6s infinite; background: radial-gradient(circle at 35% 35%, #00ffea, #008888); box-shadow:0 0 25px #00ffea; }
@@ -218,12 +248,67 @@
   @keyframes pop { 0%{transform:scale(0)} 100%{transform:scale(1)} }
   .bolt.bad { animation: shake .3s; border-color:#ff2e88; }
 
-  .feedback { text-align:center; height:24px; font-weight:900; letter-spacing:1px; margin-top:6px; font-size:14px; }
+  .feedback { text-align:center; height:24px; font-weight:900; letter-spacing:1px; margin-top:6px; font-size:14px; flex-shrink:0; }
   .good { color:#00ffea; }
   .bad  { color:#ff2e88; }
 
-  .timer-bar { height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; margin-bottom:10px; }
+  .timer-bar { height:8px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; margin-bottom:10px; flex-shrink:0; }
   .timer-fill { height:100%; width:100%; background:linear-gradient(90deg,#00ffea,#ffb347,#ff2e88); transition: width .1s linear; }
+
+  /* === ГЕРОЙ НА СТАРТЕ === */
+  .intro-hero {
+    width:170px; height:170px; border-radius:50%; overflow:hidden;
+    border:4px solid #00ffea;
+    box-shadow:0 0 35px rgba(0,255,234,0.6), 0 0 15px rgba(255,46,136,0.4);
+    margin-bottom:18px; flex-shrink:0;
+    background:linear-gradient(135deg,#ff2e88,#4a0e5c);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .intro-hero img { width:100%; height:100%; object-fit:cover; display:block; }
+  .intro-hero .fallback { font-size:80px; }
+
+  /* === АДАПТИВ ПОД ТЕЛЕФОН === */
+  @media (max-width: 520px) {
+    body { padding:6px; }
+    .screen {
+      width:100vw;
+      height:100vh;
+      height:100dvh;
+      border-radius:0;
+      border-width:0;
+      padding:14px;
+    }
+    .logo { font-size:22px; }
+    .subtitle { font-size:9px; margin-bottom:10px; }
+
+    .portrait { width:72px; height:72px; font-size:34px; border-width:2px; }
+    .dialog-box { padding:12px; gap:10px; }
+    .text { font-size:13px; }
+    .option-btn { font-size:12px; padding:8px 10px; }
+    .next-btn { font-size:12px; padding:8px 16px; }
+
+    .pin { width:44px; height:44px; }
+    .pin-pulse { width:44px; height:44px; }
+    .pin-label { font-size:11px; }
+
+    .tire-showcase { height:130px; }
+    .intro-hero { width:130px; height:130px; }
+    .intro-hero .fallback { font-size:60px; }
+
+    .bolt { width:32px; height:32px; margin:-16px 0 0 -16px; }
+    .bolt::before { inset:5px; }
+  }
+
+  @media (max-height: 640px) {
+    .screen { padding:12px; }
+    .logo { font-size:20px; }
+    .subtitle { margin-bottom:8px; }
+    .intro-hero { width:110px; height:110px; margin-bottom:10px; }
+    .intro-hero .fallback { font-size:50px; }
+    .tire-showcase { height:110px; }
+    .portrait { width:64px; height:64px; font-size:30px; }
+    .text { font-size:12px; line-height:1.35; }
+  }
 </style>
 </head>
 <body>
@@ -235,15 +320,15 @@
 
   <!-- ЭКРАН 0: ПРЕДИСТОРИЯ -->
   <div id="introScreen" class="active">
-    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; color:#fff;">
-
-      <!-- === ГЕРОЙ НА СТАРТЕ === -->
-      <div style="width:150px; height:150px; border-radius:50%; overflow:hidden; border:4px solid #00ffea; box-shadow:0 0 35px rgba(0,255,234,0.6), 0 0 15px rgba(255,46,136,0.4); margin-bottom:18px;">
-        <img src="mainhero.jpg" alt="Главный герой" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=&quot;font-size:70px; display:flex; align-items:center; justify-content:center; height:100%;&quot;>🚗</div>'">
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; color:#fff; overflow:auto;">
+      <!-- ГЕРОЙ: mainhero.jpg, с надёжным fallback -->
+      <div class="intro-hero" id="introHeroBox">
+        <img src="mainhero.jpg" alt="Главный герой"
+             onerror="this.style.display='none'; this.parentElement.innerHTML='<span class=&quot;fallback&quot;>🚗</span>';">
       </div>
 
       <h2 style="color: #00ffea; margin-bottom: 10px; letter-spacing: 2px;">VICE CITY</h2>
-      <p style="font-size: 14px; line-height: 1.6; margin-bottom: 30px;">
+      <p style="font-size: 14px; line-height: 1.6; margin-bottom: 26px; max-width:460px;">
         Ну вот, опять завал... Надо скататься по делам, заодно поспрашивать местных про дороги и безопасность. <br><br>
         А в конце заеду в тот новый <b style="color: #ff2e88;">Шиномонтаж Gislaved</b> — давно хотел поставить нормальные шины!
       </p>
@@ -318,7 +403,7 @@
         <div class="speaker" id="speaker">СИСТЕМА</div>
         
         <div class="tire-showcase" id="tireShowcase">
-          <img src="tire.png" alt="Шина Gislaved" id="tireImg" onerror="this.style.display='none'">
+          <img src="tire.png" alt="Шина Gislaved" id="tireImg">
         </div>
 
         <div class="text" id="dialogText"></div>
@@ -350,12 +435,21 @@
    ======================================================= */
 const IMAGES = {
   intro: 'mainhero.jpg',
-  police: 'police.jpg',
-  shop: 'store.jpg',
-  park: 'park.jpg',
-  gas: 'azc.jpg',
-  mechanic: 'service.jpg',
-  driver: 'mainhero.jpg'
+  police: 'police.jpg',      // портрет персонажа полиции
+  shop: 'store.jpg',         // портрет персонажа магазина
+  park: 'park.jpg',          // портрет персонажа парка
+  gas: 'azc.jpg',            // портрет персонажа заправки
+  mechanic: 'service.jpg',   // портрет шиномонтажника
+  driver: 'mainhero.jpg'     // портрет водителя (главный герой)
+};
+
+/* Фоны локаций (экран вопроса / финальный диалог) */
+const BACKGROUNDS = {
+  police:  'inpolice.jpg',
+  shop:    'fonstore.jpg',
+  park:    'fonpark.jpg',
+  gas:     'gas.jpg',
+  tire:    'fonservice.jpg'
 };
 /* ======================================================= */
 
@@ -471,6 +565,17 @@ function show(name) {
   screens[name].classList.add('active');
 }
 
+/* Установка фона для экрана диалога */
+function setDialogBackground(loc) {
+  const bg = BACKGROUNDS[loc];
+  const ds = document.getElementById('dialogScreen');
+  if (bg) {
+    ds.style.backgroundImage = `url('${bg}')`;
+  } else {
+    ds.style.backgroundImage = 'none';
+  }
+}
+
 document.getElementById('startBtn').addEventListener('click', () => {
   show('map');
 });
@@ -535,7 +640,7 @@ let typingTimer = null;
 let fullText = '';
 let isTyping = false;
 let currentDialogLines = [];
-let nextMode = 'dialog'; // 'dialog' or 'question'
+let nextMode = 'dialog';
 
 const speakerEl = document.getElementById('speaker');
 const portraitEl = document.getElementById('portrait');
@@ -556,6 +661,7 @@ function updatePortrait(src) {
 function startQuestion() {
   show('dialog');
   nextMode = 'question';
+  setDialogBackground(currentLocation);
   optionsContainer.innerHTML = '';
   nextBtn.classList.remove('show');
   tireShowcase.classList.remove('show');
@@ -628,6 +734,7 @@ function checkAnswer(idx, btn) {
 
 function startDialog() {
   nextMode = 'dialog';
+  setDialogBackground('tire');
   currentDialogLines = (currentScore >= 4) ? dialog.win : dialog.lose;
   dialogIndex = 0;
   show('dialog');
@@ -642,6 +749,7 @@ function renderDialog() {
   speakerEl.textContent = line.speaker;
   updatePortrait(line.portrait);
 
+  /* Показ шины tire.png в финальном диалоге (только при победе) */
   if (currentScore >= 4 && dialogIndex === 0) {
     tireShowcase.classList.add('show');
   } else {
@@ -665,9 +773,8 @@ function renderDialog() {
   }, 20);
 }
 
-/* === ЕДИНЫЙ ОБРАБОТЧИК NEXT (ИСПРАВЛЕНО!) === */
+/* === ЕДИНЫЙ ОБРАБОТЧИК NEXT === */
 nextBtn.addEventListener('click', () => {
-  // Пропуск печати
   if (isTyping) {
     clearInterval(typingTimer);
     dialogTextEl.textContent = fullText;
@@ -677,14 +784,12 @@ nextBtn.addEventListener('click', () => {
   }
 
   if (nextMode === 'question') {
-    // === ВОПРОС: переход к карте ===
     visited[currentLocation] = true;
     updateMapUI();
     show('map');
     return;
   }
 
-  // === ДИАЛОГ: навигация по репликам ===
   dialogIndex++;
   if (dialogIndex >= currentDialogLines.length) {
     if (currentScore >= 4) {
@@ -728,8 +833,8 @@ function createBolts() {
   boltPositions.forEach((p, i) => {
     const b = document.createElement('div');
     b.className = 'bolt';
-    b.style.left = `calc(${p.x}% - 17px)`;
-    b.style.top = `calc(${p.y}% - 17px)`;
+    b.style.left = p.x + '%';
+    b.style.top = p.y + '%';
     b.dataset.index = i;
     b.addEventListener('click', () => onBoltClick(b));
     wheel.appendChild(b);
@@ -865,8 +970,10 @@ function resetAll() {
   show('map');
 }
 
-// Инициализация карты при загрузке
+/* Инициализация */
 updateMapUI();
 </script>
 </body>
 </html>
+  
+
