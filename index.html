@@ -151,7 +151,6 @@
   }
   .option-btn:hover { background:rgba(0,255,234,0.25); }
   .option-btn:active { transform:scale(0.98); }
-  /* Подсветка правильного и неправильного */
   .option-btn.correct { background:rgba(0,255,234,0.4); border-color:#00ffea; color: #fff; font-weight: bold; }
   .option-btn.wrong { background:rgba(255,46,136,0.4); border-color:#ff2e88; color: #fff; }
   .option-btn:disabled { cursor:default; opacity:0.7; }
@@ -223,8 +222,26 @@
   <div class="logo">VICE TIRES</div>
   <div class="subtitle">АВТО-КВЕСТ • GISLAVED</div>
 
+  <!-- ЭКРАН 0: ПРЕДИСТОРИЯ -->
+  <div id="introScreen" class="active">
+    <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; color:#fff;">
+      <div style="font-size: 60px; margin-bottom: 20px;">🚗</div>
+      <h2 style="color: #00ffea; margin-bottom: 10px; letter-spacing: 2px;">VICE CITY</h2>
+      <p style="font-size: 14px; line-height: 1.6; margin-bottom: 30px;">
+        Ну вот, опять завал... Надо скататься по делам, заодно поспрашивать местных про дороги и безопасность. <br><br>
+        А в конце заеду в тот новый <b style="color: #ff2e88;">Шиномонтаж Gislaved</b> — давно хотел поставить нормальные шины!
+      </p>
+      <button id="startBtn" style="
+        background: linear-gradient(90deg,#00ffea,#ff2e88);
+        color: #0a0014; font-family: inherit; font-weight: 900;
+        border: none; padding: 12px 30px; border-radius: 10px; cursor: pointer;
+        font-size: 16px; letter-spacing: 1px; box-shadow: 0 0 25px rgba(255,46,136,0.5);
+      ">ПОЕХАЛИ ▸</button>
+    </div>
+  </div>
+
   <!-- ЭКРАН 1: КАРТА -->
-  <div id="mapScreen" class="active">
+  <div id="mapScreen">
     <div style="text-align:center; color:#fff; font-size:12px; margin-bottom:10px;">
       Найдено ответов: <b id="scoreMap">0</b> / 4
     </div>
@@ -284,8 +301,9 @@
       <div class="dialog-content">
         <div class="speaker" id="speaker">СИСТЕМА</div>
         
+        <!-- Блок для шины (появится в финале) -->
         <div class="tire-showcase" id="tireShowcase">
-          <img src="tire.png" alt="Шина Gislaved" id="tireImg">
+          <img src="tire.png" alt="Шина Gislaved" id="tireImg" onerror="this.style.display='none'">
         </div>
 
         <div class="text" id="dialogText"></div>
@@ -314,18 +332,18 @@
 <script>
 /* =======================================================
    НАСТРОЙКА КАРТИНОК
-======================================================= */
+   ======================================================= */
 const IMAGES = {
-  mechanic: '',  // Сюда позже вставишь имя файла, например 'mech.png'
-  driver: '',    // Сюда позже вставишь имя файла, например 'driver.png'
-  police: '👮',
-  shop: '🏪',
-  park: '🌳',
-  gas: '⛽'
+  intro: 'mainhero.jpg',
+  police: 'police.jpg',
+  shop: 'store.jpg',
+  park: 'park.jpg',
+  gas: 'azc.jpg',
+  mechanic: 'service.jpg',
+  driver: 'mainhero.jpg' // Водитель — это наш главный герой
 };
 /* ======================================================= */
 
-// Вопросы и реакции на них
 const questionsDB = {
   police: [
     { 
@@ -427,6 +445,7 @@ let currentQuestion = null;
 let currentLocation = null;
 
 const screens = {
+  intro: document.getElementById('introScreen'),
   map: document.getElementById('mapScreen'),
   dialog: document.getElementById('dialogScreen'),
   game: document.getElementById('gameScreen')
@@ -436,6 +455,11 @@ function show(name) {
   Object.values(screens).forEach(s => s.classList.remove('active'));
   screens[name].classList.add('active');
 }
+
+// Кнопка старта предистории
+document.getElementById('startBtn').addEventListener('click', () => {
+  show('map');
+});
 
 function updateMapUI() {
   document.getElementById('scoreMap').textContent = currentScore;
@@ -449,6 +473,9 @@ function updateMapUI() {
   if (currentScore >= 4) {
     finalPin.style.opacity = '1';
     finalPin.style.pointerEvents = 'auto';
+    // Включаем пульсацию для финальной точки
+    const pulse = finalPin.querySelector('.pin-pulse');
+    if(pulse) pulse.style.display = 'block';
     document.getElementById('mapHint').textContent = '▸ Все ответы собраны! Езжай в Шиномонтаж Gislaved!';
   } else {
     finalPin.style.opacity = '0.4';
@@ -462,7 +489,7 @@ document.querySelectorAll('.pin').forEach(pin => {
   if (id === 'tire') return;
 
   pin.addEventListener('click', () => {
-    if (visited[id]) return;
+    if (visited[id]) return; // Уже проходили
     currentLocation = id;
     const pool = questionsDB[id];
     currentQuestion = pool[Math.floor(Math.random() * pool.length)];
@@ -471,6 +498,7 @@ document.querySelectorAll('.pin').forEach(pin => {
 });
 
 document.getElementById('pin-tire').addEventListener('click', () => {
+  if (currentScore < 4) return; // Защита
   currentLocation = 'tire';
   startDialog();
 });
@@ -502,7 +530,7 @@ const tireShowcase = document.getElementById('tireShowcase');
 
 function updatePortrait(src) {
   if (src && (src.startsWith('http') || src.endsWith('.png') || src.endsWith('.jpg') || src.endsWith('.jpeg') || src.endsWith('.webp'))) {
-    portraitEl.innerHTML = `<img src="${src}" alt="face">`;
+    portraitEl.innerHTML = `<img src="${src}" alt="face" onerror="this.style.display='none'; this.parentElement.innerHTML='😎';">`;
   } else {
     portraitEl.innerHTML = ''; 
     portraitEl.textContent = src || '🔧';
@@ -515,8 +543,8 @@ function startQuestion() {
   nextBtn.classList.remove('show');
   tireShowcase.classList.remove('show');
   
-  speakerEl.textContent = "ВОПРОС";
-  updatePortrait(IMAGES[currentLocation] || '❓');
+  speakerEl.textContent = currentLocation.toUpperCase();
+  updatePortrait(IMAGES[currentLocation]);
   
   fullText = currentQuestion.q;
   dialogTextEl.textContent = '';
@@ -549,25 +577,23 @@ function renderOptions() {
 // ОБНОВЛЕННАЯ ЛОГИКА ОТВЕТОВ
 function checkAnswer(idx, btn) {
   const allBtns = optionsContainer.querySelectorAll('.option-btn');
-  allBtns.forEach(b => b.disabled = true); // Блокируем кнопки
+  allBtns.forEach(b => b.disabled = true);
 
   let isCorrect = false;
   if (idx === currentQuestion.correct) {
-    btn.classList.add('correct'); // Подсвечиваем выбранный правильный
+    btn.classList.add('correct');
     currentScore++;
     isCorrect = true;
   } else {
-    btn.classList.add('wrong'); // Подсвечиваем неверный
-    allBtns[currentQuestion.correct].classList.add('correct'); // Подсвечиваем правильный
+    btn.classList.add('wrong');
+    allBtns[currentQuestion.correct].classList.add('correct');
   }
 
-  // Меняем текст на реакцию персонажа
+  // Реакция персонажа
   setTimeout(() => {
-    speakerEl.textContent = isCorrect ? "ОТВЕТ ВЕРНЫЙ!" : "ОТВЕТ НЕВЕРНЫЙ!";
-    // Если персонаж есть, меняем и его
-    updatePortrait(isCorrect ? '😎' : '😅');
+    speakerEl.textContent = isCorrect ? "ВЕРНО!" : "НЕВЕРНО!";
+    // Эмоции в портрете можно сменить на смайлы, но мы оставим картинку (просто она останется)
     
-    // Печатаем реакцию
     fullText = isCorrect ? currentQuestion.good : currentQuestion.bad;
     dialogTextEl.textContent = '';
     isTyping = true;
@@ -583,13 +609,12 @@ function checkAnswer(idx, btn) {
       }
     }, 20);
 
-    // Показываем кнопку Далее только после печати
     nextBtn.onclick = () => {
       visited[currentLocation] = true;
       updateMapUI();
       show('map');
     };
-  }, 600); // Небольшая пауза, чтобы игрок увидел подсветку кнопок
+  }, 600);
 }
 
 function startDialog() {
