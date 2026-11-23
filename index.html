@@ -76,34 +76,43 @@
     background:linear-gradient(135deg,#001f3f,#003366);
     clip-path: polygon(30% 0, 100% 0, 100% 100%, 0 100%); opacity:.5;}
 
+  /* === УВЕЛИЧЕННЫЕ ИКОНКИ === */
   .pin {
     position:absolute; transform:translate(-50%,-100%);
-    width:34px; height:34px; cursor:pointer; z-index:5;
-    transition: transform .15s;
+    width:52px; height:52px; cursor:pointer; z-index:5;
+    transition: transform .15s, filter .2s;
+    filter: drop-shadow(0 0 8px #ff2e88);
   }
   .pin:hover { transform:translate(-50%,-100%) scale(1.15); }
-  .pin svg { width:100%; height:100%; filter: drop-shadow(0 0 6px #ff2e88); }
+  .pin svg { width:100%; height:100%; }
   .pin.visited svg { filter: drop-shadow(0 0 6px #00ffea); opacity:0.6; }
+  .pin.visited { filter: drop-shadow(0 0 6px #00ffea); }
   .pin-pulse {
-    position:absolute; width:34px; height:34px; transform:translate(-50%,-100%);
-    border-radius:50%; background:rgba(255,46,136,0.4);
-    animation: pulse 1.6s ease-out infinite; z-index:4;
+    position:absolute; left:50%; top:50%;
+    width:52px; height:52px; transform:translate(-50%,-50%);
+    border-radius:50%; background:rgba(255,46,136,0.45);
+    animation: pulse 1.6s ease-out infinite; z-index:-1;
     pointer-events:none;
   }
   .pin.visited .pin-pulse { display:none; }
-  @keyframes pulse { 0%{transform:translate(-50%,-100%) scale(.6); opacity:.9}
-    100%{transform:translate(-50%,-130%) scale(1.8); opacity:0} }
+  @keyframes pulse { 0%{transform:translate(-50%,-50%) scale(.6); opacity:.9}
+    100%{transform:translate(-50%,-50%) scale(2.2); opacity:0} }
 
   .pin-label {
-    position:absolute; transform:translateX(-50%);
-    color:#00ffea; font-size:10px; font-weight:900; letter-spacing:0.5px;
-    white-space:nowrap; text-shadow:0 0 6px #000; pointer-events:none;
+    position:absolute; left:50%; top:100%; transform:translateX(-50%);
+    color:#00ffea; font-size:12px; font-weight:900; letter-spacing:0.5px;
+    white-space:nowrap; text-shadow:0 0 6px #000, 0 0 8px #000; pointer-events:none;
     margin-top:4px;
   }
 
   .map-hint {
     text-align:center; color:#ffb347; font-size:12px; margin-top:10px; letter-spacing:1px;
   }
+
+  .map-score {
+    text-align:center; color:#fff; font-size:14px; margin-bottom:10px;
+  }
+  .map-score b { color:#00ffea; font-size:16px; }
 
   /* === ДИАЛОГ / ВОПРОСЫ === */
   #dialogScreen { justify-content:flex-end; }
@@ -113,22 +122,24 @@
     border-radius:14px;
     padding:14px;
     box-shadow:0 0 25px rgba(255,46,136,0.4);
-    display:flex; gap:12px;
-    min-height: 140px;
+    display:flex; gap:14px;
+    min-height: 150px;
   }
   
+  /* === УВЕЛИЧЕННЫЙ ПОРТРЕТ === */
   .portrait {
-    width:70px; height:70px; border-radius:10px; flex-shrink:0;
-    border:2px solid #00ffea;
+    width:96px; height:96px; border-radius:12px; flex-shrink:0;
+    border:3px solid #00ffea;
     background:linear-gradient(135deg,#ff2e88,#4a0e5c);
     display:flex; align-items:center; justify-content:center;
-    font-size:32px;
+    font-size:42px;
     overflow: hidden;
+    box-shadow: 0 0 18px rgba(0,255,234,0.4);
   }
   .portrait img { width: 100%; height: 100%; object-fit: cover; }
 
   .tire-showcase {
-    width: 100%; height: 140px;
+    width: 100%; height: 150px;
     background: rgba(0,0,0,0.5);
     border: 1px solid #00ffea;
     border-radius: 8px; margin-bottom: 10px;
@@ -225,7 +236,12 @@
   <!-- ЭКРАН 0: ПРЕДИСТОРИЯ -->
   <div id="introScreen" class="active">
     <div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; color:#fff;">
-      <div style="font-size: 60px; margin-bottom: 20px;">🚗</div>
+
+      <!-- === ГЕРОЙ НА СТАРТЕ === -->
+      <div style="width:150px; height:150px; border-radius:50%; overflow:hidden; border:4px solid #00ffea; box-shadow:0 0 35px rgba(0,255,234,0.6), 0 0 15px rgba(255,46,136,0.4); margin-bottom:18px;">
+        <img src="mainhero.jpg" alt="Главный герой" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='<div style=&quot;font-size:70px; display:flex; align-items:center; justify-content:center; height:100%;&quot;>🚗</div>'">
+      </div>
+
       <h2 style="color: #00ffea; margin-bottom: 10px; letter-spacing: 2px;">VICE CITY</h2>
       <p style="font-size: 14px; line-height: 1.6; margin-bottom: 30px;">
         Ну вот, опять завал... Надо скататься по делам, заодно поспрашивать местных про дороги и безопасность. <br><br>
@@ -242,7 +258,7 @@
 
   <!-- ЭКРАН 1: КАРТА -->
   <div id="mapScreen">
-    <div style="text-align:center; color:#fff; font-size:12px; margin-bottom:10px;">
+    <div class="map-score">
       Найдено ответов: <b id="scoreMap">0</b> / 4
     </div>
     <div class="map" id="map">
@@ -301,7 +317,6 @@
       <div class="dialog-content">
         <div class="speaker" id="speaker">СИСТЕМА</div>
         
-        <!-- Блок для шины (появится в финале) -->
         <div class="tire-showcase" id="tireShowcase">
           <img src="tire.png" alt="Шина Gislaved" id="tireImg" onerror="this.style.display='none'">
         </div>
@@ -340,7 +355,7 @@ const IMAGES = {
   park: 'park.jpg',
   gas: 'azc.jpg',
   mechanic: 'service.jpg',
-  driver: 'mainhero.jpg' // Водитель — это наш главный герой
+  driver: 'mainhero.jpg'
 };
 /* ======================================================= */
 
@@ -456,7 +471,6 @@ function show(name) {
   screens[name].classList.add('active');
 }
 
-// Кнопка старта предистории
 document.getElementById('startBtn').addEventListener('click', () => {
   show('map');
 });
@@ -473,13 +487,14 @@ function updateMapUI() {
   if (currentScore >= 4) {
     finalPin.style.opacity = '1';
     finalPin.style.pointerEvents = 'auto';
-    // Включаем пульсацию для финальной точки
     const pulse = finalPin.querySelector('.pin-pulse');
-    if(pulse) pulse.style.display = 'block';
+    if (pulse) pulse.style.display = 'block';
     document.getElementById('mapHint').textContent = '▸ Все ответы собраны! Езжай в Шиномонтаж Gislaved!';
   } else {
     finalPin.style.opacity = '0.4';
     finalPin.style.pointerEvents = 'none';
+    const pulse = finalPin.querySelector('.pin-pulse');
+    if (pulse) pulse.style.display = 'none';
     document.getElementById('mapHint').textContent = '▸ Посети все точки и ответь на вопросы';
   }
 }
@@ -489,7 +504,7 @@ document.querySelectorAll('.pin').forEach(pin => {
   if (id === 'tire') return;
 
   pin.addEventListener('click', () => {
-    if (visited[id]) return; // Уже проходили
+    if (visited[id]) return;
     currentLocation = id;
     const pool = questionsDB[id];
     currentQuestion = pool[Math.floor(Math.random() * pool.length)];
@@ -498,7 +513,7 @@ document.querySelectorAll('.pin').forEach(pin => {
 });
 
 document.getElementById('pin-tire').addEventListener('click', () => {
-  if (currentScore < 4) return; // Защита
+  if (currentScore < 4) return;
   currentLocation = 'tire';
   startDialog();
 });
@@ -520,6 +535,7 @@ let typingTimer = null;
 let fullText = '';
 let isTyping = false;
 let currentDialogLines = [];
+let nextMode = 'dialog'; // 'dialog' or 'question'
 
 const speakerEl = document.getElementById('speaker');
 const portraitEl = document.getElementById('portrait');
@@ -539,6 +555,7 @@ function updatePortrait(src) {
 
 function startQuestion() {
   show('dialog');
+  nextMode = 'question';
   optionsContainer.innerHTML = '';
   nextBtn.classList.remove('show');
   tireShowcase.classList.remove('show');
@@ -574,7 +591,6 @@ function renderOptions() {
   });
 }
 
-// ОБНОВЛЕННАЯ ЛОГИКА ОТВЕТОВ
 function checkAnswer(idx, btn) {
   const allBtns = optionsContainer.querySelectorAll('.option-btn');
   allBtns.forEach(b => b.disabled = true);
@@ -589,10 +605,8 @@ function checkAnswer(idx, btn) {
     allBtns[currentQuestion.correct].classList.add('correct');
   }
 
-  // Реакция персонажа
   setTimeout(() => {
     speakerEl.textContent = isCorrect ? "ВЕРНО!" : "НЕВЕРНО!";
-    // Эмоции в портрете можно сменить на смайлы, но мы оставим картинку (просто она останется)
     
     fullText = isCorrect ? currentQuestion.good : currentQuestion.bad;
     dialogTextEl.textContent = '';
@@ -605,21 +619,18 @@ function checkAnswer(idx, btn) {
       if (i > fullText.length) {
         clearInterval(typingTimer);
         isTyping = false;
+        nextBtn.textContent = 'ДАЛЕЕ ▸';
         nextBtn.classList.add('show');
       }
     }, 20);
-
-    nextBtn.onclick = () => {
-      visited[currentLocation] = true;
-      updateMapUI();
-      show('map');
-    };
   }, 600);
 }
 
 function startDialog() {
+  nextMode = 'dialog';
   currentDialogLines = (currentScore >= 4) ? dialog.win : dialog.lose;
   dialogIndex = 0;
+  show('dialog');
   renderDialog();
 }
 
@@ -654,7 +665,9 @@ function renderDialog() {
   }, 20);
 }
 
+/* === ЕДИНЫЙ ОБРАБОТЧИК NEXT (ИСПРАВЛЕНО!) === */
 nextBtn.addEventListener('click', () => {
+  // Пропуск печати
   if (isTyping) {
     clearInterval(typingTimer);
     dialogTextEl.textContent = fullText;
@@ -662,7 +675,16 @@ nextBtn.addEventListener('click', () => {
     nextBtn.classList.add('show');
     return;
   }
-  
+
+  if (nextMode === 'question') {
+    // === ВОПРОС: переход к карте ===
+    visited[currentLocation] = true;
+    updateMapUI();
+    show('map');
+    return;
+  }
+
+  // === ДИАЛОГ: навигация по репликам ===
   dialogIndex++;
   if (dialogIndex >= currentDialogLines.length) {
     if (currentScore >= 4) {
@@ -831,11 +853,7 @@ function loseGame() {
   timerFill.style.width = '0%';
 
   setTimeout(() => {
-    if (confirm('Шина сорвалась! Начать смену заново?')) {
-      startGame();
-    } else {
-      startGame();
-    }
+    startGame();
   }, 1200);
 }
 
@@ -846,6 +864,9 @@ function resetAll() {
   updateMapUI();
   show('map');
 }
+
+// Инициализация карты при загрузке
+updateMapUI();
 </script>
 </body>
 </html>
